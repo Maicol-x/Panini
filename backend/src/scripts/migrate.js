@@ -5,15 +5,27 @@ require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 const DB_NAME = process.env.DB_NAME || 'panini_db';
 
-const baseConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 5432,
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || '',
-};
+// Soporta DATABASE_URL (Render) o env vars individuales (local)
+const pool = process.env.DATABASE_URL
+  ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
+  : new Pool({
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT) || 5432,
+      database: DB_NAME,
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || '',
+    });
 
 async function crearBDSiNoExiste() {
-  const adminPool = new Pool({ ...baseConfig, database: 'postgres' });
+  if (process.env.DATABASE_URL) return; // Render ya provee la BD
+  const { Pool: P } = require('pg');
+  const adminPool = new P({
+    host: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT) || 5432,
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || '',
+    database: 'postgres',
+  });
   try {
     const { rows } = await adminPool.query(
       `SELECT 1 FROM pg_database WHERE datname = $1`,
@@ -29,8 +41,6 @@ async function crearBDSiNoExiste() {
     await adminPool.end();
   }
 }
-
-const pool = new Pool({ ...baseConfig, database: DB_NAME });
 
 const MIGRATIONS_DIR = path.join(__dirname, '../migrations');
 
@@ -92,4 +102,9 @@ async function migrate() {
   }
 }
 
-migrate();
+// Permite ejecutar directamente: node src/scripts/migrate.js
+if (require.main === module) {
+  migrate().catch((e) => { console.error(e); process.exit(1); });
+}
+
+module.exports = migrate;

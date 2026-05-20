@@ -51,7 +51,20 @@ app.use('/api/pedidos', pedidosRouter);
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+// Ejecutar migraciones y crear admin antes de escuchar
+async function start() {
+  try {
+    const migrate = require('./scripts/migrate');
+    await migrate();
+    const createAdmin = require('./scripts/createAdmin');
+    await createAdmin();
+  } catch (err) {
+    console.error('Error en startup:', err.message);
+  }
+  app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  });
+}
+
+start();
 
