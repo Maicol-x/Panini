@@ -15,7 +15,7 @@ async function main() {
     const existe = await pool.query('SELECT id FROM usuarios WHERE email = $1', [EMAIL]);
     if (existe.rows.length > 0) {
       console.log('El usuario admin ya existe:', EMAIL);
-      process.exit(0);
+      return;
     }
 
     const hash = await bcrypt.hash(PASSWORD, 12);
@@ -31,7 +31,9 @@ async function main() {
   } catch (err) {
     console.error('Error al crear admin:', err.message);
   } finally {
-    await pool.end();
+    if (require.main === module) {
+      await pool.end();
+    }
   }
 }
 
