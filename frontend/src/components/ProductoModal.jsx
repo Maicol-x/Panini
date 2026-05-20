@@ -9,6 +9,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 import { agregarItem } from '../store/carritoSlice';
 import axiosClient from '../api/axiosClient';
 
@@ -275,18 +277,27 @@ export default function ProductoModal({ producto, onClose }) {
 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
                     <Typography variant="body2" fontWeight={700}>Cantidad:</Typography>
-                    <TextField
-                      type="number"
-                      value={cantidad}
-                      onChange={(e) => {
-                        const v = Math.min(10, Math.max(1, parseInt(e.target.value, 10) || 1));
-                        setCantidad(v);
-                      }}
-                      slotProps={{ input: { min: 1, max: 10, inputMode: 'numeric' } }}
-                      sx={{ width: 80 }}
-                      size="small"
-                      disabled={sinStock}
-                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => setCantidad((c) => Math.max(1, c - 1))}
+                        disabled={sinStock || cantidad <= 1}
+                        sx={{ bgcolor: '#f0f4f8', width: 30, height: 30, '&:hover': { bgcolor: '#e0e7ef' } }}
+                      >
+                        <RemoveIcon fontSize="inherit" />
+                      </IconButton>
+                      <Typography fontWeight={800} sx={{ minWidth: 28, textAlign: 'center', fontSize: '1.1rem' }}>
+                        {cantidad}
+                      </Typography>
+                      <IconButton
+                        size="small"
+                        onClick={() => setCantidad((c) => Math.min(10, c + 1))}
+                        disabled={sinStock || cantidad >= 10}
+                        sx={{ bgcolor: '#f0f4f8', width: 30, height: 30, '&:hover': { bgcolor: '#e0e7ef' } }}
+                      >
+                        <AddIcon fontSize="inherit" />
+                      </IconButton>
+                    </Box>
                     <Typography variant="caption" color="text.secondary">(máx. 10)</Typography>
                   </Box>
 
