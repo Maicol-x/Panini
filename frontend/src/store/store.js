@@ -1,27 +1,26 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
 import carritoReducer from './carritoSlice';
 import authReducer from './authSlice';
 
-const carritoPersistConfig = {
-  key: 'carrito',
-  storage,
-};
-
-const persistedCarrito = persistReducer(carritoPersistConfig, carritoReducer);
+function loadCarrito() {
+  try {
+    const data = localStorage.getItem('carrito');
+    return data ? { carrito: JSON.parse(data) } : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 export const store = configureStore({
   reducer: {
-    carrito: persistedCarrito,
+    carrito: carritoReducer,
     auth: authReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-      },
-    }),
+  preloadedState: loadCarrito(),
 });
 
-export const persistor = persistStore(store);
+store.subscribe(() => {
+  try {
+    localStorage.setItem('carrito', JSON.stringify(store.getState().carrito));
+  } catch {}
+});
