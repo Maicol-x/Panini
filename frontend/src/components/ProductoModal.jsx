@@ -70,6 +70,7 @@ export default function ProductoModal({ producto, onClose }) {
   const [tel, setTel] = useState('');
   const [direccion, setDireccion] = useState('');
   const [barrio, setBarrio] = useState('');
+  const [cantidad, setCantidad] = useState(1);
   const [loading, setLoading] = useState(false);
   const [snack, setSnack] = useState(false);
   const [errores, setErrores] = useState({});
@@ -82,6 +83,7 @@ export default function ProductoModal({ producto, onClose }) {
 
   const handleClose = () => {
     setStep(1);
+    setCantidad(1);
     setNombre('');
     setTel('');
     setDireccion('');
@@ -91,7 +93,7 @@ export default function ProductoModal({ producto, onClose }) {
   };
 
   const handleAgregar = () => {
-    dispatch(agregarItem(p));
+    for (let i = 0; i < cantidad; i++) dispatch(agregarItem(p));
     setSnack(true);
     setTimeout(handleClose, 1200);
   };
@@ -112,10 +114,11 @@ export default function ProductoModal({ producto, onClose }) {
       await axiosClient.post('/pedidos', {
         nombre: nombre.trim(),
         telefono: tel.trim(),
-        items: [{ ...p, cantidad: 1 }],
-        total: Number(p.precio),
+        items: [{ ...p, cantidad }],
+        total: Number(p.precio) * cantidad,
       });
     } catch (_) {}
+    const total = Number(p.precio) * cantidad;
     const lineas = [
       '[[MANO]] \u00A1Hola! Tengo un nuevo pedido',
       '',
@@ -128,10 +131,10 @@ export default function ProductoModal({ producto, onClose }) {
       '',
       '[[CAJA]] *Detalle del pedido:*',
       SEP,
-      '\u2022 ' + prodEmoji(p.nombre) + ' _' + shortName(p.nombre) + '_\n  *Cantidad:* x1\n  *Precio:* $' + Number(p.precio).toLocaleString('es-CO'),
+      '\u2022 ' + prodEmoji(p.nombre) + ' _' + shortName(p.nombre) + '_\n  *Cantidad:* x' + cantidad + '\n  *Precio unitario:* $' + Number(p.precio).toLocaleString('es-CO'),
       SEP,
       '',
-      '[[DINERO]] *TOTAL A PAGAR: $' + Number(p.precio).toLocaleString('es-CO') + '*',
+      '[[DINERO]] *TOTAL A PAGAR: $' + total.toLocaleString('es-CO') + '*',
     );
     window.open(
       buildWAUrl(lineas.join('\n')),
@@ -261,6 +264,23 @@ export default function ProductoModal({ producto, onClose }) {
                       size="small"
                       sx={{ fontWeight: 700 }}
                     />
+                  </Box>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
+                    <Typography variant="body2" fontWeight={700}>Cantidad:</Typography>
+                    <TextField
+                      type="number"
+                      value={cantidad}
+                      onChange={(e) => {
+                        const v = Math.min(10, Math.max(1, parseInt(e.target.value, 10) || 1));
+                        setCantidad(v);
+                      }}
+                      slotProps={{ input: { min: 1, max: 10, inputMode: 'numeric' } }}
+                      sx={{ width: 80 }}
+                      size="small"
+                      disabled={sinStock}
+                    />
+                    <Typography variant="caption" color="text.secondary">(máx. 10)</Typography>
                   </Box>
 
                   {/* CTA WhatsApp */}
