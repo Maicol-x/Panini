@@ -228,9 +228,10 @@ export default function Catalogo() {
                   alignItems: 'center',
                   transform: `rotateX(-10deg) rotateY(${cfg.ry})`,
                   transformOrigin: 'center bottom',
-                  transformStyle: 'preserve-3d',
                   transition: 'transform 0.28s ease, filter 0.28s ease',
                   filter: 'drop-shadow(0 20px 12px rgba(0,0,0,0.6))',
+                  position: 'relative',
+                  zIndex: 1,
                   '&:hover': {
                     transform: `rotateX(-10deg) rotateY(${cfg.ry}) translateY(-20px) scale(1.06)`,
                     filter: 'drop-shadow(0 32px 20px rgba(0,0,0,0.7))',
@@ -242,7 +243,7 @@ export default function Catalogo() {
                   component="img"
                   src={p.imagen_url || `https://placehold.co/260x340/1565c0/ffffff?text=${encodeURIComponent(p.nombre)}`}
                   alt={p.nombre}
-                  sx={{ width: cfg.imgW, height: 'auto', objectFit: 'contain', display: 'block' }}
+                  sx={{ width: cfg.imgW, height: 'auto', objectFit: 'contain', display: 'block', pointerEvents: 'none' }}
                 />
 
                 {/* Sombra suelo */}
@@ -255,7 +256,7 @@ export default function Catalogo() {
                     filter: 'blur(3px)',
                     mt: '-6px',
                     mb: 0.75,
-                    transform: 'rotateX(5deg) scaleX(1.3)',
+                    pointerEvents: 'none',
                   }}
                 />
 
@@ -269,6 +270,7 @@ export default function Catalogo() {
                     borderRadius: 2,
                     textAlign: 'center',
                     width: cfg.imgW,
+                    pointerEvents: 'none',
                   }}
                 >
                   <Typography sx={{ color: '#fff', fontWeight: 700, fontSize: { sm: '0.72rem', md: '0.8rem' }, display: 'block', lineHeight: 1.2 }}>

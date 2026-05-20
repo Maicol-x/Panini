@@ -24,6 +24,7 @@ const esquema = Yup.object({
     .test('seguro', 'Caracteres no permitidos', noXSS),
   telefono: Yup.string().trim()
     .required('El teléfono es requerido')
+    .matches(/^[0-9+\s\-()]{7,15}$/, 'Solo números, mínimo 7 dígitos')
     .test('seguro', 'Caracteres no permitidos', noXSS),
   direccion: Yup.string().trim()
     .required('La dirección es requerida')
