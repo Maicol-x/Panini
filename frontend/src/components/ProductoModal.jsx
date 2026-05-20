@@ -254,10 +254,17 @@ export default function ProductoModal({ producto, onClose }) {
                   <Divider sx={{ my: 1.5 }} />
 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-                    <Typography fontWeight={900} color="text.primary"
-                      sx={{ fontSize: { xs: '1.6rem', sm: '2.2rem', md: '2.6rem' } }}>
-                      ${Number(p.precio).toLocaleString('es-CO')}
-                    </Typography>
+                    <Box>
+                      <Typography fontWeight={900} color="text.primary"
+                        sx={{ fontSize: { xs: '1.6rem', sm: '2.2rem', md: '2.6rem' }, lineHeight: 1.1 }}>
+                        ${(Number(p.precio) * cantidad).toLocaleString('es-CO')}
+                      </Typography>
+                      {cantidad > 1 && (
+                        <Typography variant="caption" color="text.secondary">
+                          ${Number(p.precio).toLocaleString('es-CO')} c/u
+                        </Typography>
+                      )}
+                    </Box>
                     <Chip
                       label={sinStock ? 'Agotado' : `${p.stock} disponibles`}
                       color={sinStock ? 'error' : 'success'}
